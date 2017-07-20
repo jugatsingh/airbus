@@ -4,7 +4,7 @@ from skimage import measure
 from scipy import ndimage
 from matplotlib import pyplot as plt
 
-filename = 'image007.jpg'
+filename = 'image001.jpg'
 im = cv2.imread(filename,0)
 
 equ = cv2.equalizeHist(im)
@@ -13,12 +13,14 @@ blur = cv2.GaussianBlur(equ,(5,5),0)
 thresh_val,im_thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 labels = measure.label(blur)
 # print(labels.max())
-
-# kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+inv = cv2.bitwise_not(blur)
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
 # laplacian = cv2.Laplacian(blur,cv2.CV_64F)
 # drops = ndimage.binary_fill_holes(laplacian)
-# opening = cv2.morphologyEx(equ, cv2.MORPH_OPEN, kernel)
-
+# opening = cv2.morphologyEx(im, cv2.MORPH_OPEN, kernel)
+erosion = cv2.erode(inv, kernel, iterations = 1)
+erosion = cv2.bitwise_not(erosion)
+erosion = cv2.equalizeHist(erosion)
 # cv2.convertScaleAbs( laplacian, laplacian)
 # des = 255 - laplacian
 # cv2.imshow('inverted edge detected',des)
@@ -32,7 +34,7 @@ params.minThreshold = 0
 params.maxThreshold = 178
 # Filter by Area.
 params.filterByArea = True
-params.minArea = 10
+params.minArea = 8
 params.maxArea = 40000
 	 
 # Filter by Circularity
@@ -45,7 +47,7 @@ params.filterByConvexity = False
 
 # Filter by Inertia
 params.filterByInertia = True
-params.minInertiaRatio = 0.2
+params.minInertiaRatio = 0.1
 
 # Distance Between Blobs
 params.minDistBetweenBlobs = 1
@@ -53,7 +55,7 @@ params.minDistBetweenBlobs = 1
 # Create a detector with the parameters
 detector = cv2.SimpleBlobDetector_create(params)
 # Detect blobs.
-keypoints = detector.detect(blur)
+keypoints = detector.detect(erosion)
 print(type(keypoints))
 print('Total blobs:' + str(len(keypoints)))
 # Draw detected blobs as red circles.
@@ -74,8 +76,8 @@ cv2.waitKey(0)
 # cv2.waitKey(0)
 # cv2.imshow('holes filled',gray)
 # cv2.waitKey(0)
-# cv2.imshow('opening',opening)
-# cv2.waitKey(0)
+cv2.imshow('erode',erosion)
+cv2.waitKey(0)
 # cv2.imshow('threshold',im_thresh)
 # cv2.waitKey(0)
 # Show keypoints
