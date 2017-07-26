@@ -38,31 +38,26 @@ while(True):
     res3 = cv2.matchTemplate(gray,template3,cv2.TM_CCOEFF_NORMED)
 
     # print(type(res2))
-    threshold = 0.97
+    threshold1 = 0.97
+    threshold3 = 0.9
+    threshold2 = 0.8
 
-    loc1 = np.where( res1 >= threshold)
+    loc1 = np.where( res1 >= threshold1)
+    loc2 = np.where( res2 >= threshold2)
+    loc3 = np.where( res3 >= threshold3)
 
     for pt in zip(*loc1[::-1]):
     	cv2.rectangle(frame, pt, (pt[0] + w1, pt[1] + h1), (0,255,0), 2)
-
-    threshold = 0.8
-
-    loc2 = np.where( res2 >= threshold)
-
-    loc2 = [pt for pt in zip(*loc2[::-1]) if l2_dist_check(pt,loc1,8) != False]
+    
+    loc3 = [pt for pt in zip(*loc3[::-1]) if l2_dist_check(pt, loc2, 50) == True]
+    loc3 = [pt for pt in loc3 if l2_dist_check(pt, loc1, 50) == True]
+    loc2 = [pt for pt in zip(*loc2[::-1]) if l2_dist_check(pt,loc1,15) == True]
 
     for pt in loc2:
     	cv2.rectangle(frame, pt, (pt[0] + w2, pt[1] + h2), (0,255,0), 2)
-
-    threshold = 0.9
-
-    loc3 = np.where( res3 >= threshold)
-
-    loc3 = [pt for pt in zip(*loc3[::-1]) if l2_dist_check(pt, loc2, 8) != False]
-
+    
     for pt in loc3:
     	cv2.rectangle(frame, pt, (pt[0] + w3, pt[1] + h3), (0,255,0), 2)
-
 
     if len(loc2)<150:
 
