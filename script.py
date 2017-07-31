@@ -10,6 +10,8 @@ def l2_dist_check(pt, loc, dist):
             return (False, pt1)
     return True,1
 
+width = 1680
+height = 1050
 fourcc = cv2.VideoWriter_fourcc(*'X264')
 out = cv2.VideoWriter('output.avi',fourcc, 20.0, (1680,1050))
 cap = cv2.VideoCapture('/home/mbt/Dropbox/Airbus_Videos/Video 1_A350-0059-Flight-0009-150630-150830-LHWING2_1.mp4')
@@ -132,10 +134,13 @@ while(True):
     #     cv2.putText(frame,'EXTREME TURBULENCE!',(int(frame.shape[0]/2)-200,int(frame.shape[1]/2)-80), font, 4,(0,0,255),2,cv2.LINE_AA)
     # elif len(loc2)<220:
     #     cv2.putText(frame,'TURBULENCE!',(int(frame.shape[0]/2)-50,int(frame.shape[1]/2)-80), font, 4,(0,0,255),2,cv2.LINE_AA)
-    # cv2.rectangle(frame,)
-    cv2.putText(frame,str(count_green),(int(frame.shape[0]-100), 150), font, 1,(0,255,0),2,cv2.LINE_AA)
-    cv2.putText(frame,str(count_red),(int(frame.shape[0] - 100), 250), font, 1,(0,0,255),2,cv2.LINE_AA)
-    cv2.putText(frame,str(count_green + count_red),(int(frame.shape[0]-100), 350), font, 1,(255,255,255),2,cv2.LINE_AA)
+    cv2.rectangle(frame,(width - 500,110),(width - 200,380),(255,255,255),2)
+    cv2.putText(frame,'Normal',(width - 480,150), font, 1,(0,255,0),2,cv2.LINE_AA)
+    cv2.putText(frame,'Deviated',(width - 480,250), font, 1,(0,0,255),2,cv2.LINE_AA)
+    cv2.putText(frame,'Total',(width - 480,350), font, 1,(255,255,255),2,cv2.LINE_AA)
+    cv2.putText(frame,str(count_green),(width - 300, 150), font, 1,(0,255,0),2,cv2.LINE_AA)
+    cv2.putText(frame,str(count_red),(width - 300, 250), font, 1,(0,0,255),2,cv2.LINE_AA)
+    cv2.putText(frame,str(count_green + count_red),(width - 300, 350), font, 1,(255,255,255),2,cv2.LINE_AA)
     # cv2.imshow('frame',frame)
     out.write(frame)
     # cv2.waitKey(0)
