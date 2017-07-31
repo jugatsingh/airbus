@@ -15,7 +15,7 @@ out = cv2.VideoWriter('output.avi',fourcc, 20.0, (1680,1050))
 cap = cv2.VideoCapture('/home/mbt/Dropbox/Airbus_Videos/Video 1_A350-0059-Flight-0009-150630-150830-LHWING2_1.mp4')
 font = cv2.FONT_HERSHEY_SIMPLEX
 detected_markers = {}
-lookup = []
+lookup_table = []
 # frame = cv2.imread('wing.png',1)
 # gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
 i = 0
@@ -23,14 +23,18 @@ n = -1.5
 step = 0.0
 #loop over the frames
 while(True):
-    
+    count_red = 0
+    count_green = 0
+
     i += 1
     if i%75 == 0:
         for pt in detected_markers:
-            lookup_table.append(pt)
+            if detected_markers[pt] > 50:
+                if l2_dist_check(pt, lookup_table, 15)[0] == True:
+                    lookup_table.append(pt)
         detected_markers = {}
+        # print(lookup_table)
 
-    lookup_table = []
     ret, frame = cap.read()
     if ret == False: #logic for end of video
         break
@@ -48,7 +52,7 @@ while(True):
     res3 = cv2.matchTemplate(gray,template3,cv2.TM_CCOEFF_NORMED)
 
     
-    threshold1 = 0.97
+    threshold1 = 0.99
     threshold3 = 0.9
     threshold2 = 0.8
 
@@ -65,6 +69,14 @@ while(True):
         if l2_dist_check(loc3[x],loc3[x+1:], 10)[0] != True:
             temp.remove(loc3[x])
     loc3 = temp[:] 
+
+    # temp = lookup_table[:]
+    # for x in range(len(lookup_table)):
+    #     if l2_dist_check(lookup_table[x],lookup_table[x+1:], 3)[0] != True:
+    #         temp.remove(lookup_table[x])
+    # lookup_table = temp[:] 
+
+
     # loc3 = [pt for pt in zip(*loc3[::-1]) if l2_dist_check(pt,loc3,3) == True]
     loc3 = [pt for pt in loc3 if l2_dist_check(pt, loc2, 50)[0] == True]
     loc3 = [pt for pt in loc3 if l2_dist_check(pt, loc1, 50)[0] == True]
@@ -72,19 +84,19 @@ while(True):
 
     #update detected_markers for every frame
     for pt in loc1:
-        res = l2_dist_check(pt, list(detected_markers.keys()), 8)
+        res = l2_dist_check(pt, list(detected_markers.keys()), 15)
         if res[0] == True:
             detected_markers[pt] = 1
         else:
             detected_markers[res[1]] += 1
     for pt in loc2:
-        res = l2_dist_check(pt, list(detected_markers.keys()), 8)
+        res = l2_dist_check(pt, list(detected_markers.keys()), 15)
         if res[0] == True:
             detected_markers[pt] = 1
         else:
             detected_markers[res[1]] += 1
     for pt in loc3:
-        res = l2_dist_check(pt, list(detected_markers.keys()), 8)
+        res = l2_dist_check(pt, list(detected_markers.keys()), 15)
         if res[0] == True:
             detected_markers[pt] = 1
         else:
@@ -97,26 +109,33 @@ while(True):
     #         lookup_table.append(pt)
 
     #snippet for drawing on every frame
+    # print(len(lookup_table))
     for pt in lookup_table:
-        res1 = l2_dist_check(pt, loc1, 3)
-        res2 = l2_dist_check(pt, loc2, 3)
-        res3 = l2_dist_check(pt, loc3, 3)
+        res1 = l2_dist_check(pt, loc1, 12)
+        res2 = l2_dist_check(pt, loc2, 12)
+        res3 = l2_dist_check(pt, loc3, 12)
         if res1[0] == False:
             cv2.rectangle(frame, res1[1], (res1[1][0] + w1, res1[1][1] + h1), (0,255,0), 2)    #print
+            count_green += 1
         elif res2[0] == False:
             cv2.rectangle(frame, res2[1], (res2[1][0] + w2, res2[1][1] + h2), (0,255,0), 2)    #green
+            count_green += 1
         elif res3[0] ==False:    
             cv2.rectangle(frame, res3[1], (res3[1][0] + w3, res3[1][1] + h3), (0,255,0), 2)    #markers
+            count_green += 1
         else:
             cv2.rectangle(frame, pt, (pt[0] + w2, pt[1] + h2), (0,0,255), 2)    #print red markers
+            count_red += 1
 
-    if len(loc2)<150:
+    # if len(loc2)<150:
 
-        cv2.putText(frame,'EXTREME TURBULENCE!',(int(frame.shape[0]/2)-200,int(frame.shape[1]/2)-80), font, 4,(0,0,255),2,cv2.LINE_AA)
-    elif len(loc2)<220:
-        cv2.putText(frame,'TURBULENCE!',(int(frame.shape[0]/2)-50,int(frame.shape[1]/2)-80), font, 4,(0,0,255),2,cv2.LINE_AA)
-    cv2.putText(frame,str(len(loc2[0])),(int(frame.shape[0])-150, 200), font, 4,(255,255,255),2,cv2.LINE_AA)
-    # print(len(loc1[0]),len(l))
+    #     cv2.putText(frame,'EXTREME TURBULENCE!',(int(frame.shape[0]/2)-200,int(frame.shape[1]/2)-80), font, 4,(0,0,255),2,cv2.LINE_AA)
+    # elif len(loc2)<220:
+    #     cv2.putText(frame,'TURBULENCE!',(int(frame.shape[0]/2)-50,int(frame.shape[1]/2)-80), font, 4,(0,0,255),2,cv2.LINE_AA)
+    # cv2.rectangle(frame,)
+    cv2.putText(frame,str(count_green),(int(frame.shape[0]-100), 150), font, 1,(0,255,0),2,cv2.LINE_AA)
+    cv2.putText(frame,str(count_red),(int(frame.shape[0] - 100), 250), font, 1,(0,0,255),2,cv2.LINE_AA)
+    cv2.putText(frame,str(count_green + count_red),(int(frame.shape[0]-100), 350), font, 1,(255,255,255),2,cv2.LINE_AA)
     # cv2.imshow('frame',frame)
     out.write(frame)
     # cv2.waitKey(0)
