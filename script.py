@@ -53,7 +53,7 @@ while(True):
     res2 = cv2.matchTemplate(gray,template2,cv2.TM_CCOEFF_NORMED)
     res3 = cv2.matchTemplate(gray,template3,cv2.TM_CCOEFF_NORMED)
 
-    
+
     threshold1 = 0.99
     threshold3 = 0.9
     threshold2 = 0.8
@@ -65,18 +65,18 @@ while(True):
     loc2 = [pt for pt in zip(*loc2[::-1])]
     loc3 = [pt for pt in zip(*loc3[::-1])]
 
-    
+
     temp = loc3[:]
     for x in range(len(loc3)):
         if l2_dist_check(loc3[x],loc3[x+1:], 10)[0] != True:
             temp.remove(loc3[x])
-    loc3 = temp[:] 
+    loc3 = temp[:]
 
     # temp = lookup_table[:]
     # for x in range(len(lookup_table)):
     #     if l2_dist_check(lookup_table[x],lookup_table[x+1:], 3)[0] != True:
     #         temp.remove(lookup_table[x])
-    # lookup_table = temp[:] 
+    # lookup_table = temp[:]
 
 
     # loc3 = [pt for pt in zip(*loc3[::-1]) if l2_dist_check(pt,loc3,3) == True]
@@ -103,7 +103,7 @@ while(True):
             detected_markers[pt] = 1
         else:
             detected_markers[res[1]] += 1
-    
+
     #update lookup table for every frame based on std. deviation
     # for pt in detected_markers:
     #     # print(detected_markers[pt])
@@ -122,7 +122,7 @@ while(True):
         elif res2[0] == False:
             cv2.rectangle(frame, res2[1], (res2[1][0] + w2, res2[1][1] + h2), (0,255,0), 2)    #green
             count_green += 1
-        elif res3[0] ==False:    
+        elif res3[0] ==False:
             cv2.rectangle(frame, res3[1], (res3[1][0] + w3, res3[1][1] + h3), (0,255,0), 2)    #markers
             count_green += 1
         else:
